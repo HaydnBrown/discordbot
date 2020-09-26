@@ -13,14 +13,14 @@ class AV(commands.Cog):
 
     def __init__(self, client):
         self.client = client
+        self.queues = {}
 
-    queues = {}
 
     @commands.command(pass_context=True)
     async def join(self, ctx):
         global voice
         channel = ctx.message.author.voice.channel
-        voice = get(client.voice_clients, guild=ctx.guild)
+        voice = get(self.client.voice_clients, guild=ctx.guild)
 
         if voice and voice.is_connected():
             await voice.move_to(channel)
@@ -31,7 +31,7 @@ class AV(commands.Cog):
     @commands.command(pass_context=True)
     async def leave(self, ctx):
         channel = ctx.message.author.voice_channel
-        voice = get(client.voice_clients, guild=ctx.guild)
+        voice = get(self.client.voice_clients, guild=ctx.guild)
 
         if voice and voice.is_connected():
             await voice.disconnect()
@@ -50,7 +50,7 @@ class AV(commands.Cog):
                     first_file = os.listdir(DIR)[0]
                 except:
                     print("No more queued songs\n")
-                    queues.clear()
+                    self.queues.clear()
                     return
                 main_location = os.path.dirname(os.path.realpath(__file__))
                 song_path = os.path.abspath(os.path.realpath("Queue") + "\\" + first_file)
@@ -69,17 +69,17 @@ class AV(commands.Cog):
                     voice.source = discord.PCMVolumeTransformer(voice.source)
                     voice.source.volume = 0.07
                 else:
-                    queues.clear()
+                    self.queues.clear()
                     return
             else:
-                queues.clear()
+                self.queues.clear()
                 print("No songs were queued before the ending of the last song\n")
 
         song_there = os.path.isfile("song.mp3")
         try:
             if song_there:
                 os.remove("song.mp3")
-                queues.clear()
+                self.queues.clear()
                 print("Removed old song file")
         except PermissionError:
             print("Trying to delete song file, but its being played")
@@ -97,7 +97,7 @@ class AV(commands.Cog):
 
         await ctx.send("Getting everything ready now")
 
-        voice = get(client.voice_clients, guild=ctx.guild)
+        voice = get(self.client.voice_clients, guild=ctx.guild)
 
         ydl_opts = {
             'format': 'bestaudio/best',
@@ -130,7 +130,7 @@ class AV(commands.Cog):
     @commands.command(pass_context=True)
     async def pause(self, ctx):
 
-        voice = get(client.voice_clients, guild=ctx.guild)
+        voice = get(self.client.voice_clients, guild=ctx.guild)
 
         if voice and voice.is_playing():
             print("Music paused")
@@ -143,9 +143,9 @@ class AV(commands.Cog):
     @commands.command(pass_context=True)
     async def resume(self, ctx):
 
-        voice = get(client.voice_clients, guild=ctx.guild)
+        voice = get(self.client.voice_clients, guild=ctx.guild)
 
-        if voice and voice.is_pause():
+        if voice and voice.is_paused():
             print("Resumed music")
             voice.resume()
             await ctx.send("Resumed music")
@@ -155,9 +155,9 @@ class AV(commands.Cog):
 
     @commands.command(pass_context=True)
     async def skip(self, ctx):
-        voice = get(client.voice_clients, guild=ctx.guild)
+        voice = get(self.client.voice_clients, guild=ctx.guild)
 
-        queues.clear()
+        self.queues.clear()
         if voice and voice.is_playing():
             print("Music skipped")
             voice.stop()
@@ -176,11 +176,11 @@ class AV(commands.Cog):
         q_num += 1
         add_queue = True
         while add_queue:
-            if q_num in queues:
+            if q_num in self.queues:
                 q_num += 1
             else:
                 add_queue = False
-                queues[q_num] = q_num
+                self.queues[q_num] = q_num
         queue_path = os.path.abspath(os.path.realpath("Queue") + f"\song{q_num}.%(ext)s")
 
         ydl_opts = {
