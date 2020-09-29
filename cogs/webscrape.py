@@ -10,6 +10,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+import csv
 
 
 class WebScrape(commands.Cog):
@@ -18,9 +19,11 @@ class WebScrape(commands.Cog):
         self.client = client
         self.PATH = "/home/haydn/chromedriver.exe"
         self.driver = webdriver.Chrome()
+        self.tech_filename = "tech_products.csv"
 
     @commands.command()
     async def find_tech(self, ctx, search_item):
+        tech_file = open(self.tech_filename, "w")
         self.driver.get("https://www.amazon.ca/")
         print(self.driver.title)
         search_bar = self.driver.find_element_by_id("twotabsearchtextbox")
@@ -39,12 +42,39 @@ class WebScrape(commands.Cog):
                                                           "sg-col-4-of-20 sg-col-4-of-32']")
             print("Hello3")
             print("number of items on page 1: " + str(len(result_items)))
+            file_headers = "website, product_name, price, reviews\n"
+            tech_file.write(file_headers)
+            for index, item in enumerate(result_items):
+                site = "Amazon"
+                name = item.find_element_by_xpath(".//span[@class='a-size-base-plus a-color-base a-text-normal']")
+                try:
+                    price_symbol = item.find_element_by_xpath(".//span[@class='a-price-symbol']")
+                    price_whole = item.find_element_by_xpath(".//span[@class='a-price-whole']")
+                    price_fraction = item.find_element_by_xpath(".//span[@class='a-price-fraction']")
+                    price_final = price_symbol.text + str(price_whole.text) + "." + str(price_fraction.text)
+                except:
+                    price_final = 'The price could not be obtained'
+                try:
+                    rating = item.find_element_by_xpath(".//span[@class='a-icon-alt']").text
+                    reviews = item.find_element_by_xpath(".//span[@class='a-size-base']").text
+                    tech_file.write(site + "," + name.text.replace(",", "|") + "," + price_final + "," + "The "
+                                                                                                         "rating"
+                                                                                                         " is "
+                                    + str(rating) + " with " + str(reviews) + " reviews" + "\n")
+                except:
+                    rating = "The rating could not be found"
+                    reviews = "The number of reviews could not be found"
+                    tech_file.write(site + "," + name.text.replace(",",
+                                                                   "|") + "," + price_final + "," + "Reviews could not be retrieved" + "\n")
+                print(f"The {index}th item is named: {name.text}")
+
             time.sleep(5)
         except:
             print("The results of the search were not found.")
         finally:
-            print("-----closing the web driver-----")
-            self.driver.quit()
+            print("-----closing the file, end of function-----")
+            tech_file.close()
+            await ctx.message.channel.send(file=discord.File('tech_products.csv', 'results.csv'))
 
     @commands.command()
     async def scrape_test(self, ctx):
