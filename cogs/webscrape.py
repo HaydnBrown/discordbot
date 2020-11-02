@@ -80,10 +80,6 @@ class WebScrape(commands.Cog):
     async def scrape_test(self, ctx):
         print("web scraper cog is working")
 
-    @commands.command()
-    async def param_test(self, ctx, one, *rest):
-        print("Hello world")
-
 
 def setup(client):
     client.add_cog(WebScrape(client))
