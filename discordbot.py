@@ -8,7 +8,7 @@ client = commands.Bot(command_prefix='.')
 
 @client.event
 async def on_ready():
-    print("Bot is ready...")
+    print("Bot is ready...\n")
 
 
 @client.event
@@ -35,6 +35,7 @@ async def reload(ctx, extension):
 
 for filename in os.listdir('./cogs'):
     if filename.endswith('.py'):
+        print("file loaded: " + filename[:-3] + " \n")
         client.load_extension(f'cogs.{filename[:-3]}')
 
 client.run('NzU5MjE1NDgwOTI5NjQ4NzIx.X26QhA.oT5-bMTd_0QIYxeawOOWod0jAiY')

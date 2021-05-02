@@ -4,16 +4,15 @@ import os
 import random
 import dircache
 
-class Drake(commands.Cog):
+class peterClips(commands.Cog):
 
     def __init__(self, client):
         self.client = client
 
     @commands.command()
-    async def rngDrake(self, ctx):
-        await ctx.send(os.listdir("C:\Users\12893\PycharmProjects\discordbot\photos\Drake"))
-
+    async def peterclip(self, ctx, clip):
+        await ctx.send('clip to play: ' + clip)
 
 
 def setup(client):
-    client.add_cog(Drake(client))
+    client.add_cog(peterClips(client))
