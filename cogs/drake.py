@@ -11,7 +11,7 @@ class Drake(commands.Cog):
 
     @commands.command()
     async def rngDrake(self, ctx):
-        await ctx.send(os.listdir("C:\Users\12893\PycharmProjects\discordbot\photos\Drake"))
+        await ctx.send(random.choice(os.listdir("photos/Drake")))
 
 
 
