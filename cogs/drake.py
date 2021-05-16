@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import os
 import random
-import dircache
+
 
 class Drake(commands.Cog):
 
@@ -11,8 +11,9 @@ class Drake(commands.Cog):
 
     @commands.command()
     async def rngDrake(self, ctx):
-        await ctx.send("not yet functional")
-
+        with open(random.choice(os.listdir("photos/Drake")), 'rb') as f:
+            picture = discord.File(f)
+            await ctx.send(file=picture)
 
 
 def setup(client):
