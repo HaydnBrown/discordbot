@@ -18,25 +18,25 @@ class WebScrape(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.PATH = "/home/haydn/chromedriver.exe"
-        self.driver = webdriver.Chrome()
         self.tech_filename = "tech_products.csv"
 
     @commands.command()
     async def find_tech(self, ctx, *search_items):
+        driver = webdriver.Chrome()
         search_item = ""
         for i in search_items:
             search_item = search_item + i + " "
 
         tech_file = open(self.tech_filename, "w")
-        self.driver.get("https://www.amazon.ca/")
-        print(self.driver.title)
-        search_bar = self.driver.find_element_by_id("twotabsearchtextbox")
+        driver.get("https://www.amazon.ca/")
+        print(driver.title)
+        search_bar = driver.find_element_by_id("twotabsearchtextbox")
         search_bar.send_keys(search_item)
         search_bar.send_keys(Keys.RETURN)
         try:
             print("we made it to the search page")
             # print("Hello1")
-            results = WebDriverWait(self.driver, 10).until(
+            results = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.XPATH, "//div[@class='s-main-slot s-result-list s-search-results "
                                                           "sg-row']"))
             )
@@ -81,14 +81,14 @@ class WebScrape(commands.Cog):
             print("done gathering from amazon")
 
         # now search newegg for same item
-        self.driver.get("https://www.newegg.ca/")
-        print(self.driver.title)
-        search_bar = self.driver.find_element_by_id("SearchBox2020")
+        driver.get("https://www.newegg.ca/")
+        print(driver.title)
+        search_bar = driver.find_element_by_id("SearchBox2020")
         search_bar.send_keys(search_item)
         search_bar.send_keys(Keys.RETURN)
         try:
             print("we made it to the item page")
-            results = WebDriverWait(self.driver, 10).until(
+            results = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.XPATH, "//div[@class='item-cells-wrap border-cells items-grid-view "
                                                           "four-cells expulsion-one-cell']"))
             )
@@ -120,14 +120,14 @@ class WebScrape(commands.Cog):
             print("done gathering from newegg")
 
         # now search canada computers for same item
-        self.driver.get("https://www.canadacomputers.com/")
-        print(self.driver.title)
-        search_bar = self.driver.find_element_by_id("cc_quick_search")
+        driver.get("https://www.canadacomputers.com/")
+        print(driver.title)
+        search_bar = driver.find_element_by_id("cc_quick_search")
         search_bar.send_keys(search_item)
         search_bar.send_keys(Keys.RETURN)
         try:
             print("made it to the search result page")
-            results = WebDriverWait(self.driver, 10).until(
+            results = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located(
                     (By.ID, "product-list"))
             )

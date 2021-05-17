@@ -19,6 +19,12 @@ class Utils(commands.Cog):
             amount = 50
         await ctx.channel.purge(limit=amount)
 
+    @commands.command()
+    async def atme(self, ctx):
+        myid = ctx.message.author.mention
+        print("user id: " + myid)
+        await ctx.send(myid + " hello!")
+
 
 def setup(client):
     client.add_cog(Utils(client))

@@ -7,7 +7,7 @@ import random
 import youtube_dl
 
 
-class peterClips(commands.Cog):
+class PeterClips(commands.Cog):
 
     def __init__(self, client):
         self.client = client
@@ -88,4 +88,4 @@ class peterClips(commands.Cog):
 
 
 def setup(client):
-    client.add_cog(peterClips(client))
+    client.add_cog(PeterClips(client))
