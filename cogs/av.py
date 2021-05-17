@@ -151,7 +151,7 @@ class AV(commands.Cog):
             await ctx.send("Resumed music")
         else:
             print("Music is not paused")
-            await ctx.send(Music is not paused)
+            await ctx.send("Music is not paused")
 
     @commands.command(pass_context=True)
     async def skip(self, ctx):
@@ -161,7 +161,7 @@ class AV(commands.Cog):
         if voice and voice.is_playing():
             print("Music skipped")
             voice.stop()
-            await ctx.send("Msuic skipped")
+            await ctx.send("Music skipped")
         else:
             print("No Music playing failed to skip")
             await ctx.send("No music playing failed to skip")
@@ -200,6 +200,19 @@ class AV(commands.Cog):
         await ctx.send("adding song" + str(q_num) + " to the queue")
 
         print("Song added to Queue\n")
+
+    @commands.command()
+    async def supastar(self, ctx):
+        voiceChannel = ctx.message.author.voice.channel
+        if not voiceChannel:
+            await ctx.send("Please connect to a voice channel first")
+        else:
+            voice = discord.utils.get(self.client.voice_clients, guild=ctx.guild)
+            if voice and voice.is_connected():
+                await voice.move_to(voiceChannel)
+            else:
+                voice = await voiceChannel.connect()
+            voice.play(discord.FFmpegPCMAudio('audio/songs/superstar.mp3'))
 
 
 def setup(client):

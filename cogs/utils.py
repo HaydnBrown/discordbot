@@ -15,6 +15,8 @@ class Utils(commands.Cog):
 
     @commands.command()
     async def clear(self, ctx, amount=1):
+        if amount > 50:
+            amount = 50
         await ctx.channel.purge(limit=amount)
 
 
