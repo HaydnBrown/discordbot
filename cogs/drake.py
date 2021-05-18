@@ -54,16 +54,16 @@ class Drake(commands.Cog):
             msgtext = userid + " you pulled a legendary drake!"
             with open(full_path, 'rb') as f:
                 picture = discord.File(f)
-                await ctx.channel.send(content=msgtext, file=picture)
+                await ctx.channel.send(content=str(msgtext), file=picture)
 
-    @commands.command
+    @commands.command()
     async def rngDrakeOdds(self, ctx):
         common_size = len(os.listdir("photos/commonDrake"))
         uncommon_size = len(os.listdir("photos/uncommonDrake"))
         unique_size = len(os.listdir("photos/uniqueDrake"))
         rare_size = len(os.listdir("photos/rareDrake"))
         legendary_size = len(os.listdir("photos/legendaryDrake"))
-        output = 'Odds for the drake rarities: \n Common ~60% with {} items \n Uncommon ~20% with {} items \n Unique ~15% with {} items \n Rare ~5% with {} items \n Legendary ~0.2% with {} items'.format(common_size, uncommon_size, unique_size, rare_size, legendary_size)
+        output = 'Odds of drake rarities: \nCommon ~60% with {} items \nUncommon ~20% with {} items \nUnique ~15% with {} items \nRare ~5% with {} items \nLegendary ~0.2% with {} items'.format(common_size, uncommon_size, unique_size, rare_size, legendary_size)
         await ctx.send(content=output)
 
 
