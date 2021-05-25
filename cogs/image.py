@@ -13,28 +13,42 @@ class BasedImaging(commands.Cog):
     @commands.command()
     async def rarify(self, ctx):
         username = ctx.message.author.name
-        print("username: " + username)
         filename = "tempfiles/" + username
-        print("filename: " + filename)
         await ctx.message.attachments[0].save(filename)
-        print("saved file!")
         im1 = Image.open(filename)
         im2 = Image.open("photos/utility/RAREDRAKEOVERLAY.png")
-        print("images opened")
         backup1 = im1.copy()
         backup2 = im2.copy()
         newsize = (470, 608)
         backup1 = backup1.resize(newsize)
-        print("resizing")
         backup1.paste(backup2, (0, 0), backup2)
-        rarified_filename = filename + "final.png"
+        rarified_filename = filename + "finalrare.png"
         backup1.save(rarified_filename)
         with open(rarified_filename, 'rb') as f:
             picture = discord.File(f)
             await ctx.channel.send(content="Your rarified image", file=picture)
         os.remove(filename)
         os.remove(rarified_filename)
-        print("removing the temp files")
+
+    @commands.command()
+    async def peterrip(self, ctx):
+        username = ctx.message.author.name
+        filename = "tempfiles/" + username
+        await ctx.message.attachments[0].save(filename)
+        im1 = Image.open(filename).convert('L')
+        im2 = Image.open("photos/utility/peterrip.jpeg").convert('RGBA')
+        backup1 = im1.copy()
+        backup2 = im2.copy()
+        newsize = (225, 276)
+        backup1 = backup1.resize(newsize)
+        backup2.paste(backup1, (113, 250))
+        rip_filename = filename + "finalrip.png"
+        backup2.save(rip_filename)
+        with open(rip_filename, 'rb') as f:
+            picture = discord.File(f)
+            await ctx.channel.send(file=picture)
+        os.remove(filename)
+        os.remove(rip_filename)
 
 
 def setup(client):
