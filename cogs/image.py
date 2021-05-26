@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import os
 import random
-from PIL import Image
+from PIL import Image, ImageEnhance
 
 
 class BasedImaging(commands.Cog):
@@ -69,6 +69,74 @@ class BasedImaging(commands.Cog):
             await ctx.channel.send(file=picture)
         os.remove(filename)
         os.remove(rip_filename)
+
+    @commands.command()
+    async def enhancesharpness(self, ctx, factor: int):
+        username = ctx.message.author.name
+        filename = "tempfiles/" + username + "sharpen"
+        await ctx.message.attachments[0].save(filename)
+        im1 = Image.open(filename)
+        backup1 = im1.copy()
+        enhancer = ImageEnhance.Sharpness(backup1)
+        backup1 = enhancer.enhance((factor * 30.0))
+        enhance_filename = filename + "enhancefinalsharpness.png"
+        backup1.save(enhance_filename)
+        with open(enhance_filename, 'rb') as f:
+            picture = discord.File(f)
+            await ctx.channel.send(file=picture)
+        os.remove(filename)
+        os.remove(enhance_filename)
+
+    @commands.command()
+    async def enhancecolor(self, ctx, factor: int):
+        username = ctx.message.author.name
+        filename = "tempfiles/" + username + "color"
+        await ctx.message.attachments[0].save(filename)
+        im1 = Image.open(filename)
+        backup1 = im1.copy()
+        enhancer = ImageEnhance.Color(backup1)
+        backup1 = enhancer.enhance((factor * 3.0))
+        enhance_filename = filename + "enhancefinalcolor.png"
+        backup1.save(enhance_filename)
+        with open(enhance_filename, 'rb') as f:
+            picture = discord.File(f)
+            await ctx.channel.send(file=picture)
+        os.remove(filename)
+        os.remove(enhance_filename)
+
+    @commands.command()
+    async def enhancecontrast(self, ctx, factor: int):
+        username = ctx.message.author.name
+        filename = "tempfiles/" + username + "contrast"
+        await ctx.message.attachments[0].save(filename)
+        im1 = Image.open(filename)
+        backup1 = im1.copy()
+        enhancer = ImageEnhance.Contrast(backup1)
+        backup1 = enhancer.enhance((factor * 4.0))
+        enhance_filename = filename + "enhancefinalcontrast.png"
+        backup1.save(enhance_filename)
+        with open(enhance_filename, 'rb') as f:
+            picture = discord.File(f)
+            await ctx.channel.send(file=picture)
+        os.remove(filename)
+        os.remove(enhance_filename)
+
+    @commands.command()
+    async def enhancebrightness(self, ctx, factor: int):
+        username = ctx.message.author.name
+        filename = "tempfiles/" + username + "brightness"
+        await ctx.message.attachments[0].save(filename)
+        im1 = Image.open(filename)
+        backup1 = im1.copy()
+        enhancer = ImageEnhance.Brightness(backup1)
+        backup1 = enhancer.enhance((factor * 2.0))
+        enhance_filename = filename + "enhancefinalbrightness.png"
+        backup1.save(enhance_filename)
+        with open(enhance_filename, 'rb') as f:
+            picture = discord.File(f)
+            await ctx.channel.send(file=picture)
+        os.remove(filename)
+        os.remove(enhance_filename)
 
 
 def setup(client):
