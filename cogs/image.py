@@ -138,6 +138,26 @@ class BasedImaging(commands.Cog):
         os.remove(filename)
         os.remove(enhance_filename)
 
+    @commands.command()
+    async def fallon(self, ctx):
+        username = ctx.message.author.name
+        filename = "tempfiles/" + username + "fallon"
+        await ctx.message.attachments[0].save(filename)
+        im1 = Image.open(filename)
+        im2 = Image.open("photos/utility/fallon.jpg")
+        backup1 = im1.copy()
+        backup2 = im2.copy()
+        newsize = (521, 461)
+        backup1 = backup1.resize(newsize)
+        backup2.paste(backup1, (119, 364))
+        fallon_filename = filename + "finalfallon.png"
+        backup2.save(fallon_filename)
+        with open(fallon_filename, 'rb') as f:
+            picture = discord.File(f)
+            await ctx.channel.send(file=picture)
+        os.remove(filename)
+        os.remove(fallon_filename)
+
 
 def setup(client):
     client.add_cog(BasedImaging(client))
