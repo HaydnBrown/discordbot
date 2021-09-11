@@ -121,7 +121,7 @@ class AV(commands.Cog):
 
         voice.play(discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_queue())
         voice.source = discord.PCMVolumeTransformer(voice.source)
-        voice.source.volume = 0.07
+        # voice.source.volume = 0.07
 
         name = name.rsplit("-", 2)
         await ctx.send(f"Playing: {name[0]}")
