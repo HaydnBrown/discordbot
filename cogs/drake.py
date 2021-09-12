@@ -63,7 +63,7 @@ class Drake(commands.Cog):
                 if new_time - drake_cooldowns[ctx.message.author.name] > 600:
                     drake_cooldowns[ctx.message.author.name] = new_time
                 else:
-                    await ctx.channel.send("You need to wait 10 mins between each drake pull")
+                    await ctx.channel.send("You need to wait", (new_time - drake_cooldowns[ctx.message.author.name]), "more seconds before your next pull")
                     return
             else:
                 drake_cooldowns[ctx.message.author.name] = time.time()
@@ -105,7 +105,7 @@ class Drake(commands.Cog):
             # check to make sure the server is in the database
             if guild_document is None:
                 # the server isn't yet tracked in the database, initialize it with addServerToDB
-                print("the server isnt in the db, adding it now")
+                print("the server isn't in the db, adding it now")
                 await self.addServerToDB(ctx)
                 await self.mongo_collection.update_one({"members.name": ctx.message.author.name},
                                                        {"$addToSet": {"members.$.{}".format(rarity): file_name}})
@@ -171,6 +171,30 @@ class Drake(commands.Cog):
                         ["Legendary:", legendary_bar, "{:.2f}%".format(legendary_progress)]]
                 output_str = "Your collection progress: \n" + tabulate(data)
                 await ctx.channel.send("```\n{}\n```".format(output_str))
+
+    @commands.command()
+    async def globalLeaderBoard(self, ctx):
+        totalDrakes = len(os.listdir("photos/commonDrake")) + len(os.listdir("photos/uncommonDrake")) + \
+                      len(os.listdir("photos/uniqueDrake")) + len(os.listdir("photos/rareDrake")) + \
+                      len(os.listdir("photos/legendaryDrake"))
+        users = {} # dict containing every user and their total % of collection completed
+        result = self.mongo_collection.find()
+        docs = await result.to_list(100)
+        print("success")
+        print(len(docs))
+        print(docs[0]['members'][0]['name'])
+        for document in docs:
+            # print(document['members'])
+            # members = document['members']
+            for user in document['members']:
+                userDrakes = len(user['common']) + len(user['uncommon']) + len(user['unique']) + len(user['rare']) + \
+                             len(user['legendary'])
+                print(user['name'], ", drakes: ", userDrakes)
+                percentage = (userDrakes / totalDrakes) * 100
+                users[user['name']] = percentage
+        print(users)
+        finalUsers = {k: v for k, v in sorted(users.items(), key=lambda item: item[1], reverse=True)}
+        print(finalUsers)
 
 
 def setup(client):
