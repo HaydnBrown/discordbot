@@ -63,43 +63,46 @@ class Drake(commands.Cog):
                 if new_time - drake_cooldowns[ctx.message.author.name] > 600:
                     drake_cooldowns[ctx.message.author.name] = new_time
                 else:
-                    await ctx.channel.send("You need to wait", (new_time - drake_cooldowns[ctx.message.author.name]), "more seconds before your next pull")
+                    t_remaining = 600 - (new_time - drake_cooldowns[ctx.message.author.name])
+                    await ctx.channel.send("You need to wait {} more seconds before your next pull".format(t_remaining))
                     return
             else:
                 drake_cooldowns[ctx.message.author.name] = time.time()
             # pull drake functionality
-            random_int = random.randrange(0, 501)
+            random_int = random.randrange(0, 201)
             userid = ctx.message.author.mention
             picture = None
             file_name = ""
             rarity = ""
             full_path = ""
             msg_text = ""
-            if (random_int >= 0) and (random_int < 300):
+            if (random_int >= 0) and (random_int < 110):
                 file_name = random.choice(os.listdir("photos/commonDrake"))
                 full_path = "photos/commonDrake/" + file_name
                 rarity = "common"
                 msg_text = "Your common drake."
-            elif (random_int >= 300) and (random_int < 400):
+            elif (random_int >= 110) and (random_int < 160):
                 file_name = random.choice(os.listdir("photos/uncommonDrake"))
                 full_path = "photos/uncommonDrake/" + file_name
                 rarity = "uncommon"
                 msg_text = "Your uncommon drake."
-            elif (random_int >= 400) and (random_int < 475):
+            elif (random_int >= 160) and (random_int < 190):
                 file_name = random.choice(os.listdir("photos/uniqueDrake"))
                 full_path = "photos/uniqueDrake/" + file_name
                 rarity = "unique"
                 msg_text = "Your unique drake."
-            elif (random_int >= 475) and (random_int < 500):
+            elif (random_int >= 190) and (random_int < 200):
                 file_name = random.choice(os.listdir("photos/rareDrake"))
                 full_path = "photos/rareDrake/" + file_name
                 rarity = "rare"
                 msg_text = userid + " you pulled a rare drake!"
             else:
+                # make it so that the choice is done from only the legendaries not pulled yet
                 file_name = random.choice(os.listdir("photos/legendaryDrake"))
                 full_path = "photos/legendaryDrake/" + file_name
                 rarity = "legendary"
                 msg_text = userid + " you pulled a legendary drake!"
+            print("your drake: ", full_path)
 
             guild_document = await self.mongo_collection.find_one({'_id': current_guild.id})
             # check to make sure the server is in the database
@@ -139,7 +142,7 @@ class Drake(commands.Cog):
         unique_size = len(os.listdir("photos/uniqueDrake"))
         rare_size = len(os.listdir("photos/rareDrake"))
         legendary_size = len(os.listdir("photos/legendaryDrake"))
-        output = 'Odds of drake rarities: \nCommon ~60% with {} items \nUncommon ~20% with {} items \nUnique ~15% with {} items \nRare ~5% with {} items \nLegendary ~0.2% with {} items'.format(
+        output = 'Odds of drake rarities: \nCommon ~55% with {} items \nUncommon ~25% with {} items \nUnique ~15% with {} items \nRare ~5% with {} items \nLegendary ~0.5% with {} items'.format(
             common_size, uncommon_size, unique_size, rare_size, legendary_size)
         await ctx.send(content=output)
 
@@ -177,7 +180,8 @@ class Drake(commands.Cog):
         totalDrakes = len(os.listdir("photos/commonDrake")) + len(os.listdir("photos/uncommonDrake")) + \
                       len(os.listdir("photos/uniqueDrake")) + len(os.listdir("photos/rareDrake")) + \
                       len(os.listdir("photos/legendaryDrake"))
-        users = {} # dict containing every user and their total % of collection completed
+        usersPercantage = {}  # dict containing every user and their total % of collection completed
+        usersGuilds = {}
         result = self.mongo_collection.find()
         docs = await result.to_list(100)
         print("success")
@@ -191,10 +195,49 @@ class Drake(commands.Cog):
                              len(user['legendary'])
                 print(user['name'], ", drakes: ", userDrakes)
                 percentage = (userDrakes / totalDrakes) * 100
-                users[user['name']] = percentage
-        print(users)
-        finalUsers = {k: v for k, v in sorted(users.items(), key=lambda item: item[1], reverse=True)}
+                if not user['name'] in usersPercantage:
+                    usersPercantage[user['name']] = percentage
+                # usersGuilds[user['name']] = document['id']
+        print(usersPercantage)
+        finalUsers = {k: v for k, v in sorted(usersPercantage.items(), key=lambda item: item[1], reverse=True)}
         print(finalUsers)
+        # print(max(usersPercantage, key=usersPercantage.get))
+        finalList = []
+        for x in range(0, 5):
+            tempMax = max(usersPercantage, key=usersPercantage.get)
+            finalList.append([tempMax, usersPercantage[tempMax]])
+            del (usersPercantage[tempMax])
+        print(finalList)
+        str = ""
+        str = str + "The 5 largest collections across servers: \n"
+        for i in range(0, 5):
+            str = str + "{}. {} with {:.2f} percent completion \n".format(i+1, finalList[i][0], finalList[i][1])
+        print(str)
+        await ctx.channel.send(content=str)
+
+    @commands.command()
+    async def myRank(self, ctx):
+        totalDrakes = len(os.listdir("photos/commonDrake")) + len(os.listdir("photos/uncommonDrake")) + \
+                      len(os.listdir("photos/uniqueDrake")) + len(os.listdir("photos/rareDrake")) + \
+                      len(os.listdir("photos/legendaryDrake"))
+        usersPercantage = {}  # dict containing every user and their total % of collection completed
+        result = self.mongo_collection.find()
+        docs = await result.to_list(100)
+        print("success - myRank")
+        for document in docs:
+            for user in document['members']:
+                userDrakes = len(user['common']) + len(user['uncommon']) + len(user['unique']) + len(user['rare']) + \
+                             len(user['legendary'])
+                percentage = (userDrakes / totalDrakes) * 100
+                if not user['name'] in usersPercantage:
+                    usersPercantage[user['name']] = percentage
+        finalUsers = {k: v for k, v in sorted(usersPercantage.items(), key=lambda item: item[1], reverse=True)}
+        user_list = list(finalUsers.keys())
+        percentage_list = list(finalUsers.values())
+        username = ctx.message.author.name
+        userrank = user_list.index(username)
+        str = f"{username} your rank is #{userrank + 1} with {percentage_list[userrank]:.2f}% of your collection filled"
+        await ctx.channel.send(content=str)
 
 
 def setup(client):

@@ -1,4 +1,4 @@
-1. add the cooldowns for each player of rngDrake to the servers database
-2. clean up drake code, make sure a players collection is updated in each server they're in
-3. modify find_tech to act similarily to notsobots .img command, an embed with reacts to scroll through results
-4. more image filters/processing
+1. add personal drake rank command DONE
+2. make a useful help command with specifics for each command
+3. add legendary dupe protection for rngDrake
+4. add betting poll system

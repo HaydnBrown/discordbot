@@ -158,6 +158,66 @@ class BasedImaging(commands.Cog):
         os.remove(filename)
         os.remove(fallon_filename)
 
+    @commands.command()
+    async def zamn(self, ctx):
+        username = ctx.message.author.name
+        filename = "tempfiles/" + username + "zamn"
+        await ctx.message.attachments[0].save(filename)
+        im1 = Image.open(filename)
+        im2 = Image.open("photos/utility/ZAMN.png")
+        backup1 = im1.copy()
+        backup2 = im2.copy()
+        newsize = (319, 509)
+        backup1 = backup1.resize(newsize)
+        backup2.paste(backup1, (296, 1))
+        fallon_filename = filename + "finalzamn.png"
+        backup2.save(fallon_filename)
+        with open(fallon_filename, 'rb') as f:
+            picture = discord.File(f)
+            await ctx.channel.send(file=picture)
+        os.remove(filename)
+        os.remove(fallon_filename)
+
+    @commands.command()
+    async def bidness(self, ctx):
+        username = ctx.message.author.name
+        filename = "tempfiles/" + username + "bidness"
+        await ctx.message.attachments[0].save(filename)
+        im1 = Image.open(filename)
+        im2 = Image.open("photos/utility/blank_bidness.png")
+        backup1 = im1.copy()
+        backup2 = im2.copy()
+        newsize = (262, 353)
+        backup1 = backup1.resize(newsize)
+        backup2.paste(backup1, (74, 268))
+        fallon_filename = filename + "finalbidness.png"
+        backup2.save(fallon_filename)
+        with open(fallon_filename, 'rb') as f:
+            picture = discord.File(f)
+            await ctx.channel.send(file=picture)
+        os.remove(filename)
+        os.remove(fallon_filename)
+
+    @commands.command()
+    async def ericandre(self, ctx):
+        username = ctx.message.author.name
+        filename = "tempfiles/" + username + "ericandre"
+        await ctx.message.attachments[0].save(filename)
+        im1 = Image.open(filename)
+        im2 = Image.open("photos/utility/blank_ericandre.png")
+        backup1 = im1.copy()
+        backup2 = im2.copy()
+        newsize = (140, 165)
+        backup1 = backup1.resize(newsize)
+        backup2.paste(backup1, (360, 80))
+        fallon_filename = filename + "finalericandre.png"
+        backup2.save(fallon_filename)
+        with open(fallon_filename, 'rb') as f:
+            picture = discord.File(f)
+            await ctx.channel.send(file=picture)
+        os.remove(filename)
+        os.remove(fallon_filename)
+
 
 def setup(client):
     client.add_cog(BasedImaging(client))
