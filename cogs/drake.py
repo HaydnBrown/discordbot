@@ -41,6 +41,47 @@ class Drake(commands.Cog):
                                                                        'rare': [],
                                                                        'legendary': []}}})
 
+    @commands.command()
+    async def removeInactive(self, ctx):
+        print("hello \n")
+        user_server = await self.mongo_collection.find_one({'_id': ctx.guild.id})
+        members_list = user_server['members']
+        # new_members_list = members_list.copy()
+        # for i in range(len(members_list)):
+        #     if len(members_list[i]["common"]) == 0:
+        #         print("deleting person: ", members_list[i]['name'])
+        #         del new_members_list[i]
+        new_members_list = [m for m in members_list if not (len(m["common"]) == 0)]
+        for i in new_members_list:
+            print(i['name'])
+        await self.mongo_collection.update_one({'_id': ctx.guild.id}, {"$set": {"members": new_members_list}})
+        print("done")
+
+    @commands.command()
+    async def updateServerMembers(self, ctx):
+        print("unfinished")
+        guild_members = ctx.guild.members
+        human_members = guild_members.copy()
+        for member in guild_members:
+            if member.bot:
+                human_members.remove(member)
+        human_names = [i.name for i in human_members]
+        user_server = await self.mongo_collection.find_one({'_id': ctx.guild.id})
+        existing_members = user_server['members']
+        for member in existing_members:
+            if member['name'] in human_names:
+                human_names.remove(member['name'])
+        for member in human_names:
+            await self.mongo_collection.update_one({'_id': ctx.guild.id},
+                                                   {'$addToSet': {'members':
+                                                                      {'name': member,
+                                                                       'common': [],
+                                                                       'uncommon': [],
+                                                                       'unique': [],
+                                                                       'rare': [],
+                                                                       'legendary': []}}})
+        print("Updated the member list with all new members")
+
     def progressstring(self, percentage):
         output_str = ""
         p = math.floor(percentage / 10)
@@ -98,7 +139,21 @@ class Drake(commands.Cog):
                 msg_text = userid + " you pulled a rare drake!"
             else:
                 # make it so that the choice is done from only the legendaries not pulled yet
-                file_name = random.choice(os.listdir("photos/legendaryDrake"))
+                userServer = await self.mongo_collection.find_one({"members.name": ctx.message.author.name})
+                serverMembers = userServer['members']
+                userLegendaries = None
+                for member in serverMembers:
+                    if member['name'] == ctx.message.author.name:
+                        userLegendaries = member['legendary']
+
+                legendaryDrakes = os.listdir("photos/legendaryDrake")
+
+                if (len(userLegendaries) != len(legendaryDrakes)):
+                    legendariesToChooseFrom = list(set(legendaryDrakes) - set(userLegendaries))
+                else:
+                    legendariesToChooseFrom = random.choice(os.listdir("photos/legendaryDrake"))
+
+                file_name = random.choice(legendariesToChooseFrom)
                 full_path = "photos/legendaryDrake/" + file_name
                 rarity = "legendary"
                 msg_text = userid + " you pulled a legendary drake!"
@@ -223,7 +278,7 @@ class Drake(commands.Cog):
         usersPercantage = {}  # dict containing every user and their total % of collection completed
         result = self.mongo_collection.find()
         docs = await result.to_list(100)
-        print("success - myRank")
+        # print("success - myRank")
         for document in docs:
             for user in document['members']:
                 userDrakes = len(user['common']) + len(user['uncommon']) + len(user['unique']) + len(user['rare']) + \
