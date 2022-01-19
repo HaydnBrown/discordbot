@@ -30,9 +30,9 @@ class Drake(commands.Cog):
                 human_members.remove(member)
         for m in human_members:
             print(m.name)
-        await self.mongo_collection.insert_one({'_id': ctx.guild.id, 'members': []})
+        await self.mongo_collection.insert_one({'_id': 'users', 'members': []})
         for member in human_members:
-            await self.mongo_collection.update_one({'_id': ctx.guild.id},
+            await self.mongo_collection.update_one({'_id': 'users'},
                                                    {'$addToSet': {'members':
                                                                       {'name': member.name,
                                                                        'common': [],
@@ -44,7 +44,7 @@ class Drake(commands.Cog):
     @commands.command()
     async def removeInactive(self, ctx):
         print("hello \n")
-        user_server = await self.mongo_collection.find_one({'_id': ctx.guild.id})
+        user_server = await self.mongo_collection.find_one({'_id': "users"})
         members_list = user_server['members']
         # new_members_list = members_list.copy()
         # for i in range(len(members_list)):
@@ -54,7 +54,7 @@ class Drake(commands.Cog):
         new_members_list = [m for m in members_list if not (len(m["common"]) == 0)]
         for i in new_members_list:
             print(i['name'])
-        await self.mongo_collection.update_one({'_id': ctx.guild.id}, {"$set": {"members": new_members_list}})
+        await self.mongo_collection.update_one({'_id': 'users'}, {"$set": {"members": new_members_list}})
         print("done")
 
     @commands.command()
@@ -66,13 +66,13 @@ class Drake(commands.Cog):
             if member.bot:
                 human_members.remove(member)
         human_names = [i.name for i in human_members]
-        user_server = await self.mongo_collection.find_one({'_id': ctx.guild.id})
+        user_server = await self.mongo_collection.find_one({'_id': 'users'})
         existing_members = user_server['members']
         for member in existing_members:
             if member['name'] in human_names:
                 human_names.remove(member['name'])
         for member in human_names:
-            await self.mongo_collection.update_one({'_id': ctx.guild.id},
+            await self.mongo_collection.update_one({'_id': 'users'},
                                                    {'$addToSet': {'members':
                                                                       {'name': member,
                                                                        'common': [],
@@ -139,7 +139,7 @@ class Drake(commands.Cog):
                 msg_text = userid + " you pulled a rare drake!"
             else:
                 # make it so that the choice is done from only the legendaries not pulled yet
-                userServer = await self.mongo_collection.find_one({"members.name": ctx.message.author.name})
+                userServer = await self.mongo_collection.find_one({'_id': 'users'})
                 serverMembers = userServer['members']
                 userLegendaries = None
                 for member in serverMembers:
@@ -159,7 +159,7 @@ class Drake(commands.Cog):
                 msg_text = userid + " you pulled a legendary drake!"
             print("your drake: ", full_path)
 
-            guild_document = await self.mongo_collection.find_one({'_id': current_guild.id})
+            guild_document = await self.mongo_collection.find_one({'_id': 'users'})
             # check to make sure the server is in the database
             if guild_document is None:
                 # the server isn't yet tracked in the database, initialize it with addServerToDB
@@ -169,7 +169,7 @@ class Drake(commands.Cog):
                                                        {"$addToSet": {"members.$.{}".format(rarity): file_name}})
             else:
                 # find the member document
-                result = await self.mongo_collection.find_one({"members.name": ctx.message.author.name})
+                result = await self.mongo_collection.find_one({'_id': 'users'})
                 members = result['members']
                 for member in members:
                     if member['name'] == ctx.message.author.name:
@@ -203,7 +203,7 @@ class Drake(commands.Cog):
 
     @commands.command()
     async def myCollection(self, ctx):
-        result = await self.mongo_collection.find_one({"members.name": ctx.message.author.name})
+        result = await self.mongo_collection.find_one({'_id': 'users'})
         members = result['members']
         for member in members:
             if member['name'] == ctx.message.author.name:
@@ -237,22 +237,25 @@ class Drake(commands.Cog):
                       len(os.listdir("photos/legendaryDrake"))
         usersPercantage = {}  # dict containing every user and their total % of collection completed
         usersGuilds = {}
-        result = self.mongo_collection.find()
-        docs = await result.to_list(100)
-        print("success")
-        print(len(docs))
-        print(docs[0]['members'][0]['name'])
-        for document in docs:
-            # print(document['members'])
-            # members = document['members']
-            for user in document['members']:
-                userDrakes = len(user['common']) + len(user['uncommon']) + len(user['unique']) + len(user['rare']) + \
-                             len(user['legendary'])
-                print(user['name'], ", drakes: ", userDrakes)
-                percentage = (userDrakes / totalDrakes) * 100
-                if not user['name'] in usersPercantage:
-                    usersPercantage[user['name']] = percentage
-                # usersGuilds[user['name']] = document['id']
+        docs = await self.mongo_collection.find_one({'_id': 'users'})
+        for user in docs['members']:
+            userDrakes = len(user['common']) + len(user['uncommon']) + len(user['unique']) + len(user['rare']) + \
+                         len(user['legendary'])
+            print(user['name'], ", drakes: ", userDrakes)
+            percentage = (userDrakes / totalDrakes) * 100
+            if not user['name'] in usersPercantage:
+                usersPercantage[user['name']] = percentage
+        # for document in docs:
+        #     # print(document['members'])
+        #     # members = document['members']
+        #     for user in document['members']:
+        #         userDrakes = len(user['common']) + len(user['uncommon']) + len(user['unique']) + len(user['rare']) + \
+        #                      len(user['legendary'])
+        #         print(user['name'], ", drakes: ", userDrakes)
+        #         percentage = (userDrakes / totalDrakes) * 100
+        #         if not user['name'] in usersPercantage:
+        #             usersPercantage[user['name']] = percentage
+        #         # usersGuilds[user['name']] = document['id']
         print(usersPercantage)
         finalUsers = {k: v for k, v in sorted(usersPercantage.items(), key=lambda item: item[1], reverse=True)}
         print(finalUsers)
@@ -276,16 +279,21 @@ class Drake(commands.Cog):
                       len(os.listdir("photos/uniqueDrake")) + len(os.listdir("photos/rareDrake")) + \
                       len(os.listdir("photos/legendaryDrake"))
         usersPercantage = {}  # dict containing every user and their total % of collection completed
-        result = self.mongo_collection.find()
-        docs = await result.to_list(100)
+        docs = await self.mongo_collection.find_one({'_id': 'users'})
         # print("success - myRank")
-        for document in docs:
-            for user in document['members']:
-                userDrakes = len(user['common']) + len(user['uncommon']) + len(user['unique']) + len(user['rare']) + \
-                             len(user['legendary'])
-                percentage = (userDrakes / totalDrakes) * 100
-                if not user['name'] in usersPercantage:
-                    usersPercantage[user['name']] = percentage
+        for user in docs['members']:
+            userDrakes = len(user['common']) + len(user['uncommon']) + len(user['unique']) + len(user['rare']) + \
+                         len(user['legendary'])
+            percentage = (userDrakes / totalDrakes) * 100
+            if not user['name'] in usersPercantage:
+                usersPercantage[user['name']] = percentage
+        # for document in docs:
+        #     for user in document['members']:
+        #         userDrakes = len(user['common']) + len(user['uncommon']) + len(user['unique']) + len(user['rare']) + \
+        #                      len(user['legendary'])
+        #         percentage = (userDrakes / totalDrakes) * 100
+        #         if not user['name'] in usersPercantage:
+        #             usersPercantage[user['name']] = percentage
         finalUsers = {k: v for k, v in sorted(usersPercantage.items(), key=lambda item: item[1], reverse=True)}
         user_list = list(finalUsers.keys())
         percentage_list = list(finalUsers.values())
