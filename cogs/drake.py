@@ -43,7 +43,7 @@ class Drake(commands.Cog):
 
     @commands.command()
     async def removeInactive(self, ctx):
-        print("hello \n")
+        print("removing inactive users \n")
         user_server = await self.mongo_collection.find_one({'_id': "users"})
         members_list = user_server['members']
         # new_members_list = members_list.copy()
@@ -55,11 +55,11 @@ class Drake(commands.Cog):
         for i in new_members_list:
             print(i['name'])
         await self.mongo_collection.update_one({'_id': 'users'}, {"$set": {"members": new_members_list}})
-        print("done")
+        print("done removing inactive users")
 
     @commands.command()
     async def updateServerMembers(self, ctx):
-        print("unfinished")
+        print("updating users list with new members:")
         guild_members = ctx.guild.members
         human_members = guild_members.copy()
         for member in guild_members:
