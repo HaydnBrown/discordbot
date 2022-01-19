@@ -2,4 +2,4 @@
 2. make a useful help command with specifics for each command
 3. add legendary dupe protection for rngDrake
 4. add betting poll system
-5. Add way for admin to update a server member list to add new users to the DB file
+5. Add way for admin to update a server member list to add new users to the DB file DONE (db needs structural rework)

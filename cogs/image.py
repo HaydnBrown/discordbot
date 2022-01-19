@@ -218,6 +218,13 @@ class BasedImaging(commands.Cog):
         os.remove(filename)
         os.remove(fallon_filename)
 
+    @commands.command()
+    async def pray(self, ctx):
+        with open("photos/utility/angel-jerma.png", 'rb') as f:
+            picture = discord.File(f)
+            await ctx.channel.send(file=picture)
+        print("sent angel-jerma")
+
 
 def setup(client):
     client.add_cog(BasedImaging(client))
