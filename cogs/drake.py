@@ -17,8 +17,7 @@ class Drake(commands.Cog):
 
     def __init__(self, client):
         self.client = client
-        self.mongo_client = motor.motor_asyncio.AsyncIOMotorClient(
-            "mongodb+srv://haydnbrown:Ds572284@cluster0.pkpoc.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+        self.mongo_client = motor.motor_asyncio.AsyncIOMotorClient(os.environ['mongoConnectionStr'])
         self.mongo_db = self.mongo_client.DrakeCollections
         self.mongo_collection = self.mongo_db.ServersCollections
 

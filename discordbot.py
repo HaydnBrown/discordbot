@@ -89,4 +89,4 @@ for filename in os.listdir('./cogs'):
         print("file loaded: " + filename[:-3])
         client.load_extension(f'cogs.{filename[:-3]}')
 
-client.run('NzU5MjE1NDgwOTI5NjQ4NzIx.X26QhA.oT5-bMTd_0QIYxeawOOWod0jAiY')
+client.run(os.environ['basedBotStr'])
