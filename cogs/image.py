@@ -225,6 +225,13 @@ class BasedImaging(commands.Cog):
             await ctx.channel.send(file=picture)
         print("sent angel-jerma")
 
+    @commands.command()
+    async def truegif(self, ctx):
+        with open("photos/utility/thatstrue.gif", 'rb') as f:
+            picture = discord.File(f)
+            await ctx.channel.send(file=picture)
+        print("sent thats-true gif")
+
 
 def setup(client):
     client.add_cog(BasedImaging(client))

@@ -150,7 +150,7 @@ class Drake(commands.Cog):
                 if (len(userLegendaries) != len(legendaryDrakes)):
                     legendariesToChooseFrom = list(set(legendaryDrakes) - set(userLegendaries))
                 else:
-                    legendariesToChooseFrom = random.choice(os.listdir("photos/legendaryDrake"))
+                    legendariesToChooseFrom = os.listdir("photos/legendaryDrake")
 
                 file_name = random.choice(legendariesToChooseFrom)
                 full_path = "photos/legendaryDrake/" + file_name
