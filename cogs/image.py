@@ -219,6 +219,32 @@ class BasedImaging(commands.Cog):
         os.remove(fallon_filename)
 
     @commands.command()
+    async def tucker(self, ctx):
+        print("tucker time")
+        username = ctx.message.author.name
+        filename = "tempfiles/" + username + "tucker"
+        await ctx.message.attachments[0].save(filename)
+        im1 = Image.open(filename)
+        im2 = Image.open("photos/utility/tucker.jpg")
+        backup1 = im1.copy()
+        backup2 = im2.copy()
+        pic_size_x, pic_size_y = backup1.size
+        new_size_x = int(pic_size_x * 0.40)
+        new_size_y = int(pic_size_y * 0.35)
+        new_size = (new_size_x, new_size_y)
+        print(f'new size: {new_size}')
+        backup2 = backup2.resize(new_size)
+        print(f'coordinates: x:{pic_size_x - new_size_x} y:{pic_size_y - new_size_y}')
+        backup1.paste(backup2, ((pic_size_x - new_size_x), (pic_size_y - new_size_y)))
+        tucker_filename = filename + "finaltucker.png"
+        backup1.save(tucker_filename)
+        with open(tucker_filename, 'rb') as f:
+            picture = discord.File(f)
+            await ctx.channel.send(file=picture)
+        os.remove(filename)
+        os.remove(tucker_filename)
+
+    @commands.command()
     async def pray(self, ctx):
         with open("photos/utility/angel-jerma.png", 'rb') as f:
             picture = discord.File(f)

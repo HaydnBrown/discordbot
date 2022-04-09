@@ -84,9 +84,13 @@ async def reload(ctx, extension):
     client.load_extension(f'cogs.{extension}')
 
 
+print("clearing temp files")
+for file in os.listdir('./tempfiles'):
+    os.remove(f'tempfiles/{file}')
+
 for filename in os.listdir('./cogs'):
     if filename.endswith('.py'):
-        print("file loaded: " + filename[:-3])
+        print("cog loaded: " + filename[:-3])
         client.load_extension(f'cogs.{filename[:-3]}')
 
 client.run(os.environ['basedBotStr'])
