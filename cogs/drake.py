@@ -42,11 +42,6 @@ class Drake(commands.Cog):
         print("removing inactive users \n")
         user_server = await self.mongo_collection.find_one({'_id': "users"})
         members_list = user_server['members']
-        # new_members_list = members_list.copy()
-        # for i in range(len(members_list)):
-        #     if len(members_list[i]["common"]) == 0:
-        #         print("deleting person: ", members_list[i]['name'])
-        #         del new_members_list[i]
         new_members_list = [m for m in members_list if not (len(m["common"]) == 0)]
         for i in new_members_list:
             print(i['name'])
@@ -148,6 +143,9 @@ class Drake(commands.Cog):
                     legendariesToChooseFrom = list(set(legendaryDrakes) - set(userLegendaries))
                 else:
                     legendariesToChooseFrom = os.listdir("photos/legendaryDrake")
+                    await ctx.send("{} you pulled a legendary dupe, awarding 10,000 points".format(ctx.author.mention))
+                    await self.mongo_collection.update_one({"members.name": ctx.message.author.name},
+                                                           {"$inc": {"members.$.points": 10000}})
 
                 file_name = random.choice(legendariesToChooseFrom)
                 full_path = "photos/legendaryDrake/" + file_name
@@ -176,6 +174,25 @@ class Drake(commands.Cog):
                                 picture = discord.File(f)
                                 msg_text = msg_text + " You already own this drake"
                                 await ctx.channel.send(content=msg_text, file=picture)
+                            if rarity == "common":
+                                await ctx.send("{}, you have been given 100 points for a common dupe".format(ctx.author.name))
+                                await self.mongo_collection.update_one({"members.name": ctx.message.author.name},
+                                                                       {"$inc": {"members.$.points": 100}})
+                            elif rarity == "uncommon":
+                                await ctx.send(
+                                    "{}, you have been given 200 points for an uncommon dupe".format(ctx.author.name))
+                                await self.mongo_collection.update_one({"members.name": ctx.message.author.name},
+                                                                       {"$inc": {"members.$.points": 200}})
+                            elif rarity == "unique":
+                                await ctx.send(
+                                    "{}, you have been given 500 points for a unique dupe".format(ctx.author.name))
+                                await self.mongo_collection.update_one({"members.name": ctx.message.author.name},
+                                                                       {"$inc": {"members.$.points": 500}})
+                            else:
+                                await ctx.send(
+                                    "{}, you have been given 1000 points for a rare dupe".format(ctx.author.name))
+                                await self.mongo_collection.update_one({"members.name": ctx.message.author.name},
+                                                                       {"$inc": {"members.$.points": 1000}})
                         else:
                             # new drake pull, add to players collection
                             await self.mongo_collection.update_one({"members.name": ctx.message.author.name},
