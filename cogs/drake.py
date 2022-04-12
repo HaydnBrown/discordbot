@@ -7,8 +7,10 @@ import motor.motor_asyncio
 import time
 import math
 from tabulate import tabulate
+from urllib.error import HTTPError
 
 drake_cooldowns = {}
+
 
 class Drake(commands.Cog):
 

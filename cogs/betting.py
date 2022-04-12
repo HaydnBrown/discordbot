@@ -7,6 +7,7 @@ import motor.motor_asyncio
 import time
 import math
 import datetime
+from urllib.error import HTTPError
 
 
 class Betting(commands.Cog):
@@ -19,20 +20,20 @@ class Betting(commands.Cog):
 
     @commands.command()
     async def setPoints(self, ctx, points):
-        print("setPoints function...\n")
+        print("\nsetPoints function...")
         if ctx.author.id == 136259896365678593:
             print("access granted...")
             user_list = await self.mongo_collection.find_one({'_id': 'users'})
             member_list = user_list['members']
             for member in member_list:
                 await self.mongo_collection.update_one({"members.name": member['name']},
-                                                       {"$set": {"members.$.points": points}})
+                                                       {"$set": {"members.$.points": int(points)}})
         else:
             await ctx.send("Nice try, jack")
 
     @commands.command()
     async def initializePoints(self, ctx):
-        print("Initializing users points")
+        print("\nInitializing users points")
         if ctx.author.id == 136259896365678593:
             print("access granted...")
             user_list = await self.mongo_collection.find_one({'_id': 'users'})
@@ -50,18 +51,17 @@ class Betting(commands.Cog):
 
     @commands.command()
     async def myPoints(self, ctx):
-        print("myPoints function called")
+        print("\nmyPoints function called")
         user_list = await self.mongo_collection.find_one({'_id': 'users'})
         member_list = user_list['members']
         for member in member_list:
             if ctx.author.name == member['name']:
                 content_str = "{} you have {} points".format(ctx.author.name, member['points'])
-                await ctx.send(content_str)
-                break
+                await ctx.send(content=content_str)
 
     @commands.command()
     async def dailyPoints(self, ctx):
-        print("{}'s daily points".format(ctx.author.name))
+        print("\n{}'s daily points".format(ctx.author.name))
         user_list = await self.mongo_collection.find_one({'_id': 'users'})
         member_list = user_list['members']
         for member in member_list:
@@ -71,27 +71,27 @@ class Betting(commands.Cog):
                         print("check the time of the last daily")
                         if (int(time.time()) - member['lastdaily']) > 79200:
                             print("user can claim daily")
-                            member['lastdaily'] = int(time.time())
                             member['points'] = member['points'] + 250
-                            await ctx.send("{} you have claimed your 250 daily points".format(ctx.author.name))
+                            await ctx.send(content="{} you have claimed your 250 daily points".format(ctx.author.name))
                             await self.mongo_collection.update_one({"members.name": ctx.message.author.name},
                                                                    {"$set": {
-                                                                       "members.$.lastdaily": member['lastdaily'],
+                                                                       "members.$.lastdaily": int(time.time()),
                                                                        "members.$.points": member['points']}})
                         else:
                             print("hasnt been long enough to claim daily")
-                            time_remaining = datetime.timedelta(seconds=(79200 - (int(time.time()) - member['lastdaily'])))
-                            await ctx.send(
-                                "{} you have {} remaining before you can claim your next daily".format(ctx.author.name,
-                                                                                                       time_remaining))
+                            time_remaining = datetime.timedelta(
+                                seconds=(79200 - (int(time.time()) - member['lastdaily'])))
+                            await ctx.send(content=
+                                           "{} you have {} remaining before you can claim your next daily".format(
+                                               ctx.author.name,
+                                               time_remaining))
                     else:
                         print("User hasnt claimed dailies before, initialize daily time")
-                        member['lastdaily'] = int(time.time())
                         member['points'] = member['points'] + 250
-                        await ctx.send("{} you have claimed your 250 daily points".format(ctx.author.name))
+                        await ctx.send(content="{} you have claimed your 250 daily points".format(ctx.author.name))
                         await self.mongo_collection.update_one({"members.name": ctx.message.author.name},
                                                                {"$set": {
-                                                                   "members.$.lastdaily": member['lastdaily'],
+                                                                   "members.$.lastdaily": int(time.time()),
                                                                    "members.$.points": member['points']}})
                 else:
                     await ctx.send("Your points aren't initialized, msg @Frenchmyfry")
