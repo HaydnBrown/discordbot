@@ -22,9 +22,16 @@ class Utils(commands.Cog):
     @commands.command()
     async def atme(self, ctx):
         myid = ctx.message.author.mention
-        print("user id: " + myid)
+        print("user mention: " + myid)
         await ctx.send(myid + " hello!")
 
+    @commands.command()
+    async def myname(self, ctx):
+        await ctx.send(ctx.author.name)
+
+    @commands.command()
+    async def myid(self, ctx):
+        await ctx.send(ctx.author.id)
 
 def setup(client):
     client.add_cog(Utils(client))

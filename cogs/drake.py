@@ -8,10 +8,7 @@ import time
 import math
 from tabulate import tabulate
 
-# mongo "mongodb+srv://cluster0.pkpoc.mongodb.net/DrakeCollections" --username haydnbrown
-
 drake_cooldowns = {}
-
 
 class Drake(commands.Cog):
 
