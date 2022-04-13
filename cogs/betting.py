@@ -50,27 +50,30 @@ class Betting(commands.Cog):
         Format: <Option 1> ;;; <Option 2>
         Example: Over 2.5 attempts ;;; under 2.5 attempts
         """
+        arg_list = list(args)
         bet_id = generate_code()
-        print("Creating a new bet with id: {}".format(bet_id))
+        print("\nCreating a new bet with id: {}".format(bet_id))
         index_of_seperator = -1  # after the loop, represents the start of second option
-        if ";;;" in args:
+        if ";;;" in arg_list:
             print("Format for bet was correct")
-            index_of_seperator = args.index(";;;")
-            args.remove(";;;")
+            index_of_seperator = arg_list.index(";;;")
+            print("removing sep from arg_list")
+            arg_list.remove(";;;")
         else:
             print("format was wrong, checking for typo")
-            for i in range(0, len(args)):
-                if ";;;" in args[i]:
+            for i in range(0, len(arg_list)):
+                if ";;;" in arg_list[i]:
                     print("found the typo word")
-                    if args[i].endswith(";;;"):
+                    if arg_list[i].endswith(";;;"):
                         print("this is the end of option 1")
-                        args[i].strip(";")
+                        arg_list[i].strip(";")
                         index_of_seperator = i + 1
                     else:
                         # the word starts with ;;;
                         print("this is the start of option 2")
-                        args[i].strip(";")
+                        arg_list[i].strip(";")
                         index_of_seperator = i
+        print("done checking for separator, index is: {}".format(index_of_seperator))
         if index_of_seperator == -1:
             print("Could not find ;;; in input")
             await ctx.send(content="{}, bad input, please try again. Use #help createBet for help on how to create a "
@@ -78,13 +81,16 @@ class Betting(commands.Cog):
             return None
         else:
             # we have the index, can create the bet.
-            print("creating the bet...")
+            print("separator found")
             option_one = ""
             for i in range(0, index_of_seperator):
-                option_one = option_one + args[i] + " "
+                option_one = option_one + arg_list[i] + " "
+            print("option 1: {}".format(option_one))
             option_two = ""
-            for i in range(index_of_seperator, len(args)):
-                option_two = option_two + args[i] + " "
+            for i in range(index_of_seperator, len(arg_list)):
+                option_two = option_two + arg_list[i] + " "
+            print("option 2: {}".format(option_two))
+            print("adding bet to db")
             await self.mongo_collection.update_one({'_id': 'betting'},
                                                    {'$addToSet': {'bets': {'code': bet_id,
                                                                            'guild': ctx.guild.id,
@@ -92,10 +98,12 @@ class Betting(commands.Cog):
                                                                            'option_one': option_one,
                                                                            'option_two': option_two,
                                                                            'users': []}}})
+            print("bet added to db, sending msg to user")
             await ctx.send(content="Created bet with unique code: {} and options: \n1: {} \n2: {} \n{} will be "
                                    "responsible for determining "
                                    "the outcome and closing the bet".format(bet_id, option_one, option_two,
                                                                             ctx.author.name))
+            print("msg sent to user. createBet done")
 
     @commands.command()
     async def setAllPoints(self, ctx, points):
