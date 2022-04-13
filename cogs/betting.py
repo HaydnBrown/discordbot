@@ -92,8 +92,10 @@ class Betting(commands.Cog):
                                                                            'option_one': option_one,
                                                                            'option_two': option_two,
                                                                            'users': []}}})
-            await ctx.send(content="Bet with unique code: {} has been create, {} will be responsible for determining "
-                                   "the outcome and closing the bet".format(bet_id, ctx.author.name)) 
+            await ctx.send(content="Created bet with unique code: {} and options: \n1: {} \n2: {} \n{} will be "
+                                   "responsible for determining "
+                                   "the outcome and closing the bet".format(bet_id, option_one, option_two,
+                                                                            ctx.author.name))
 
     @commands.command()
     async def setAllPoints(self, ctx, points):
