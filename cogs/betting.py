@@ -183,7 +183,8 @@ class Betting(commands.Cog):
                 op_1_wager += user['amount']
             else:
                 op_2_wager += user['amount']
-        return_str = "Bet with code {}: \nOption 1: {} | {} points wagered\nOption 2: {} | {} points wagered".format(code, bet['option_one'], op_1_wager, bet['option_two'], op_2_wager)
+        return_str = "Bet with code {}: \nOption 1: {} | {} points wagered\nOption 2: {} | {} points wagered".format(
+            code, bet['option_one'], op_1_wager, bet['option_two'], op_2_wager)
         try:
             await ctx.send(content=return_str)
         except Exception as e:
@@ -219,6 +220,39 @@ class Betting(commands.Cog):
             print("Couldn't send msg to user, exception: {}".format(e))
         finally:
             print("DONE")
+
+    @commands.command()
+    async def closeBet(self, ctx, code, option):
+        """
+        Closes an open bet and pays out the winners
+
+        :param code: The 6-digit unique bet code
+        :param option: The option which won. 1 or 2.
+        """
+        print("\n\ncloseBet function")
+        option = int(option)
+        betting_doc = await self.mongo_collection.find_one({'_id': 'betting'})
+        total_1 = 0
+        total_2 = 0
+        bet = next((bet for bet in betting_doc['bets'] if bet['code'] == str(code)), None)
+        if bet['creator'] == ctx.author.name:
+            for user in bet['users']:
+                if user['option'] == 1:
+                    total_1 += user['amount']
+                else:
+                    total_2 += user['amount']
+            odds_1 = int(total_1 / (total_1 + total_2))
+            odds_2 = int(total_2 / (total_1 + total_2))
+            odds = [odds_1, odds_2]
+            # now payout each user
+            for user in bet['user']:
+                if user['option'] == option:
+                    await self.mongo_collection.update_one({"members.name": ctx.message.author.name}, {
+                        "$inc": {"members.$.points": int(user['amount'] / odds[option - 1])}})
+            await ctx.send(content="{} won {} points".format(user['name'], int(user['amount'] / odds[option - 1])))
+        else:
+            await ctx.send(content="Only the person who created the bet can close it")
+        print("DONE")
 
     @commands.command()
     async def setAllPoints(self, ctx, points):
