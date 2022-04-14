@@ -106,6 +106,121 @@ class Betting(commands.Cog):
             print("msg sent to user. createBet done")
 
     @commands.command()
+    async def placeBet(self, ctx, code, option, amount):
+        """
+         This command is used to place points on an existing bet.
+         Format: $placeBet <bet code> <option #> <amount to bet>
+         Example: $placeBet abc123 2 2500
+
+        :param code: The unique 6-digit bet code
+        :param option: option to bet on (1 or 2)
+        :param amount: Amount to bet
+        """
+        print("\nplaceBet command")
+        # the process for updating a user's existing bet is super inefficient. can definitely improve it
+        # by going through the document and if the user doesnt exist, update it then, and if they do, update it
+        # then and there instead of going through the for loops a second time
+        print("Getting userlist ")
+        user_list = await self.mongo_collection.find_one({'_id': 'users'})
+        user = next((user for user in user_list['members'] if user['name'] == ctx.author.name), None)
+        print("got user")
+        option = int(option)
+        amount = int(amount)
+        if amount > user['points']:
+            await ctx.send(
+                content="{}, you have {} points, please enter a value less than or equal to this amount".format(
+                    ctx.author.name, user['points']))
+            return None
+        betting_doc = await self.mongo_collection.find_one({'_id': 'betting'})  # returns all bets
+        bet = next((bet for bet in betting_doc['bets'] if bet['code'] == str(code)), None)
+        print("bet returned: {}".format(bet))
+
+        # check if user already placed a bet
+        existing_user = next((u for u in bet['users'] if u['name'] == ctx.author.name), None)
+        print("checked if user exists")
+        if existing_user is None:
+            # add user to users array in bet
+            print("initializing user in bet")
+            await self.mongo_collection.update_one({'bets.code': code},
+                                                   {'$addToSet': {'bets.$.users': {'name': ctx.author.name,
+                                                                                   'option': option,
+                                                                                   'amount': amount}}})
+        else:
+            # update user array
+            for user in bet['users']:
+                if user['name'] == ctx.author.name:
+                    user['amount'] += amount
+            for b in betting_doc['bets']:
+                if b['code'] == code:
+                    b['users'] = bet['users']
+            # user exists, update the amount bet
+            print("updating user's existing bet")
+            try:
+                await self.mongo_collection.update_one({'_id': 'betting'},
+                                                       {'$set': {'bets': betting_doc['bets']}})
+            except Exception as e:
+                print("\nException raised: {}\n".format(e))
+        print("updated user in the bet, now change their points")
+        await self.mongo_collection.update_one({"members.name": ctx.message.author.name},
+                                               {"$inc": {"members.$.points": (amount * -1)}})
+        await ctx.send(content="{}, your wager for {} has been placed on bet {}".format(ctx.author.name, amount, code))
+        print("updated users points. DONE.")
+
+    @commands.command()
+    async def viewBet(self, ctx, code):
+        """
+        View a bet's options and the amount wagered on them given the bet code
+
+        :param code: The unique code of the bet
+        """
+        print("\nviewBet function")
+        betting_doc = await self.mongo_collection.find_one({'_id': 'betting'})
+        bet = next((bet for bet in betting_doc['bets'] if bet['code'] == str(code)), None)
+        op_1_wager = 0
+        op_2_wager = 0
+        for user in bet['users']:
+            if user['option'] == 1:
+                op_1_wager += user['amount']
+            else:
+                op_2_wager += user['amount']
+        return_str = "Bet with code {}: \nOption 1: {} | {} points wagered\nOption 2: {} | {} points wagered".format(code, bet['option_one'], op_1_wager, bet['option_two'], op_2_wager)
+        try:
+            await ctx.send(content=return_str)
+        except Exception as e:
+            print("couldnt send msg to user, exception: {}".format(e))
+        finally:
+            print("DONE")
+
+    @commands.command()
+    async def availableBets(self, ctx):
+        """
+        View the bets available in this server
+        """
+        print("\navailableBets function")
+        return_str = "All bets available in this server: \n\n"
+        betting_doc = await self.mongo_collection.find_one({'_id': 'betting'})
+        op_1_wager = 0
+        op_2_wager = 0
+        for bet in betting_doc['bets']:
+            if bet['guild'] == ctx.guild.id:
+                op_1_wager = 0
+                op_2_wager = 0
+                for user in bet['users']:
+                    if user['option'] == 1:
+                        op_1_wager += user['amount']
+                    else:
+                        op_2_wager += user['amount']
+                return_str += "Bet with code {}: \nOption 1: {} | {} points wagered\nOption 2: {} | {} points " \
+                              "wagered\n\n".format(bet['code'], bet['option_one'], op_1_wager, bet['option_two'],
+                                                   op_2_wager)
+        try:
+            await ctx.send(content=return_str)
+        except Exception as e:
+            print("Couldn't send msg to user, exception: {}".format(e))
+        finally:
+            print("DONE")
+
+    @commands.command()
     async def setAllPoints(self, ctx, points):
         """
         Sets all user's points to the amount specified. Admin only.
