@@ -272,6 +272,23 @@ class Betting(commands.Cog):
             await ctx.send("Nice try, jack")
 
     @commands.command()
+    async def setUserPoints(self, ctx, user, points):
+        """
+        Increment a specified user by some amount of points. Admin only.
+
+        :param user: The user to change points
+        :param points: the amount of points
+        """
+        print("\nsetUserPoints function")
+        if ctx.author.id == 136259896365678593:
+            print("access granted...")
+            await self.mongo_collection.update_one({"members.name": str(user)},
+                                                   {"$inc": {"members.$.points": int(points)}})
+        else:
+            await ctx.send(content="You don't have permission for this command")
+        print("DONE")
+
+    @commands.command()
     async def initializePoints(self, ctx):
         """
         Used to initialize the points of users who are new to a server and haven't had their points set yet. Admin only.
@@ -295,7 +312,6 @@ class Betting(commands.Cog):
     @commands.command()
     async def myPoints(self, ctx):
         """
-        No arguments
         Return the user's currently available points
         """
         print("\nmyPoints function called")
@@ -305,6 +321,7 @@ class Betting(commands.Cog):
             if ctx.author.name == member['name']:
                 content_str = "{} you have {} points".format(ctx.author.name, member['points'])
                 await ctx.send(content=content_str)
+        print("DONE")
 
     @commands.command()
     async def dailyPoints(self, ctx):
@@ -345,7 +362,15 @@ class Betting(commands.Cog):
                                                                    "members.$.lastdaily": int(time.time()),
                                                                    "members.$.points": member['points']}})
                 else:
-                    await ctx.send("Your points aren't initialized, msg @Frenchmyfry")
+                    try:
+                        print("initializing user's points and claiming their daily")
+                        await self.mongo_collection.update_one({"members.name": ctx.message.author.name},
+                                                               {"$set": {
+                                                                   "members.$.lastdaily": int(time.time()),
+                                                                   "members.$.points": 5250}})
+                    except Exception as e:
+                        print("Exception when trying to initialize users points and daily time: {}".format(e))
+        print("DONE")
 
 
 def setup(client):
