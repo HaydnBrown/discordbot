@@ -26,7 +26,7 @@ class Betting(commands.Cog):
         self.mongo_db = self.mongo_client.DrakeCollections
         self.mongo_collection = self.mongo_db.ServersCollections
 
-    @commands.command()
+    @commands.command(hidden=True)
     async def initBetting(self, ctx):
         """
         Initializes the betting doc in the database. Admin only.
@@ -76,8 +76,9 @@ class Betting(commands.Cog):
         print("done checking for separator, index is: {}".format(index_of_seperator))
         if index_of_seperator == -1:
             print("Could not find ;;; in input")
-            await ctx.send(content="{}, bad input, please try again. Use #help createBet for help on how to create a "
-                                   "bet".format(ctx.author.name))
+            await ctx.send(
+                content="{}, wrong input, please try again. Use `$help createBet` for help on how to create a "
+                        "bet".format(ctx.author.name))
             return None
         else:
             # we have the index, can create the bet.
@@ -108,7 +109,7 @@ class Betting(commands.Cog):
     @commands.command()
     async def placeBet(self, ctx, code, option, amount):
         """
-         This command is used to place points on an existing bet.
+         This command is used to place points on an existing bet. Minimum 100 point wager.
          Format: $placeBet <bet code> <option #> <amount to bet>
          Example: $placeBet abc123 2 2500
 
@@ -126,6 +127,9 @@ class Betting(commands.Cog):
         print("got user")
         option = int(option)
         amount = int(amount)
+        if amount < 100:
+            await ctx.send(content="Minimum bet is 100 points")
+            return None
         if amount > user['points']:
             await ctx.send(
                 content="{}, you have {} points, please enter a value less than or equal to this amount".format(
@@ -235,26 +239,58 @@ class Betting(commands.Cog):
         total_1 = 0
         total_2 = 0
         bet = next((bet for bet in betting_doc['bets'] if bet['code'] == str(code)), None)
+        print("bet: {}".format(bet))
         if bet['creator'] == ctx.author.name:
             for user in bet['users']:
                 if user['option'] == 1:
                     total_1 += user['amount']
                 else:
                     total_2 += user['amount']
-            odds_1 = int(total_1 / (total_1 + total_2))
-            odds_2 = int(total_2 / (total_1 + total_2))
-            odds = [odds_1, odds_2]
-            # now payout each user
-            for user in bet['user']:
-                if user['option'] == option:
-                    await self.mongo_collection.update_one({"members.name": ctx.message.author.name}, {
-                        "$inc": {"members.$.points": int(user['amount'] / odds[option - 1])}})
-            await ctx.send(content="{} won {} points".format(user['name'], int(user['amount'] / odds[option - 1])))
+            # if either option has 0 total points, refund peoples money
+            if (total_1 == 0) or (total_2 == 0):
+                print("refund everyone...")
+                print("option 1: {} option 2: {}".format(total_1, total_2))
+                print("len of bet['users']: {}".format(len(bet['users'])))
+                for user in bet['users']:
+                    print("entered for loop")
+                    try:
+                        print("User: {}".format(user['name']))
+                        await self.mongo_collection.update_one({"members.name": user['name']}, {
+                            "$inc": {"members.$.points": user['amount']}})
+                    except Exception as e:
+                        print("exception e: {}".format(e))
+                await ctx.send(content="One option wasn't picked, so everyone's points have been refunded")
+            else:
+                print("Paying out...")
+                odds_1 = total_1 / (total_1 + total_2)
+                odds_2 = total_2 / (total_1 + total_2)
+                odds = [odds_1, odds_2]
+                print("option 1: {} option 2: {}".format(total_1, total_2))
+                # now payout each user
+                for user in bet['users']:
+                    if user['option'] == option:
+                        try:
+                            print("paying out user: {}, {} points".format(user['name'],
+                                                                          int(user['amount'] / odds[option - 1])))
+                            await self.mongo_collection.update_one({"members.name": user['name']}, {
+                                "$inc": {"members.$.points": int(user['amount'] / odds[option - 1])}})
+                        except Exception as e:
+                            print("exception occured: {}".format(e))
+                        await ctx.send(
+                            content="{} won {} points".format(user['name'], int(user['amount'] / odds[option - 1])))
+            # now delete the bet from the db
+            print("deleting bet {} from the betting doc...".format(code))
+            betting_doc['bets'].remove(bet)
+            try:
+                print("updating db...")
+                await self.mongo_collection.update_one({'_id': 'betting'}, {'$set': {'bets': betting_doc['bets']}})
+            except Exception as e:
+                print("Exception e: {}".format(e))
         else:
             await ctx.send(content="Only the person who created the bet can close it")
         print("DONE")
 
-    @commands.command()
+    @commands.command(hidden=True)
     async def setAllPoints(self, ctx, points):
         """
         Sets all user's points to the amount specified. Admin only.
@@ -271,7 +307,7 @@ class Betting(commands.Cog):
         else:
             await ctx.send("Nice try, jack")
 
-    @commands.command()
+    @commands.command(hidden=True)
     async def setUserPoints(self, ctx, user, points):
         """
         Increment a specified user by some amount of points. Admin only.
@@ -288,7 +324,7 @@ class Betting(commands.Cog):
             await ctx.send(content="You don't have permission for this command")
         print("DONE")
 
-    @commands.command()
+    @commands.command(hidden=True)
     async def initializePoints(self, ctx):
         """
         Used to initialize the points of users who are new to a server and haven't had their points set yet. Admin only.

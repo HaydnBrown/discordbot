@@ -10,6 +10,21 @@ class Utils(commands.Cog):
     # Events use @commands.Cog.listener()
 
     @commands.command()
+    async def patchNotes(self, ctx):
+        """
+        What's new
+        """
+        print("\n\n---Patch Notes---")
+        try:
+            await ctx.send(content="Whats new:\n"
+                                   "Added points system and betting. Get more info on betting by using `$help Betting`"
+                                   " and then `$help <cmd name>`.\n"
+                                   "Everybody starts with 5000 points and can gain more points through `$dailyPoints`, "
+                                   "pulling duplicate drakes, or by winning bets.")
+        except Exception as e:
+            print("Exception : {}".format(e))
+
+    @commands.command()
     async def based(self, ctx):
         await ctx.send('thank u based god')
 
