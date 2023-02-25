@@ -7,8 +7,7 @@ import globalvars
 import time
 import youtube_dl
 
-intents = discord.Intents.default()
-intents.members = True
+intents = discord.Intents.all()
 
 client = commands.Bot(command_prefix='$', intents=intents)
 
