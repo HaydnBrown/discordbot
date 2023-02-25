@@ -202,5 +202,5 @@ class AV(commands.Cog):
         print("Song added to Queue\n")
 
 
-def setup(client):
-    client.add_cog(AV(client))
+async def setup(client):
+    await client.add_cog(AV(client))
