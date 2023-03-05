@@ -105,5 +105,5 @@ class WebScrape(commands.Cog):
             await ctx.message.channel.send("Results could not be found")
 
 
-def setup(client):
-    client.add_cog(WebScrape(client))
+async def setup(client):
+    await client.add_cog(WebScrape(client))

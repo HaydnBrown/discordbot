@@ -318,5 +318,5 @@ class Drake(commands.Cog):
         await ctx.channel.send(content=str)
 
 
-def setup(client):
-    client.add_cog(Drake(client))
+async def setup(client):
+    await client.add_cog(Drake(client))

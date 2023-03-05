@@ -1,11 +1,13 @@
+import asyncio
+
 import discord
 from discord.ext import commands
 import os
 import globalvars
 import time
 import youtube_dl
-intents = discord.Intents.default()
-intents.members = True
+
+intents = discord.Intents.all()
 
 client = commands.Bot(command_prefix='$', intents=intents)
 
@@ -70,27 +72,33 @@ async def on_command_error(ctx, error):
 
 @client.command()
 async def load(ctx, extension):
-    client.load_extension(f'cogs.{extension}')
+    await client.load_extension(f'cogs.{extension}')
 
 
 @client.command()
 async def unload(ctx, extension):
-    client.unload_extension(f'cogs.{extension}')
+    await client.unload_extension(f'cogs.{extension}')
 
 
 @client.command()
 async def reload(ctx, extension):
-    client.unload_extension(f'cogs.{extension}')
-    client.load_extension(f'cogs.{extension}')
+    await client.unload_extension(f'cogs.{extension}')
+    await client.load_extension(f'cogs.{extension}')
 
 
-print("clearing temp files")
-for file in os.listdir('./tempfiles'):
-    os.remove(f'tempfiles/{file}')
+async def main_client():
+    print("clearing temp files")
+    for file in os.listdir('./tempfiles'):
+        os.remove(f'tempfiles/{file}')
 
-for filename in os.listdir('./cogs'):
-    if filename.endswith('.py'):
-        print("cog loaded: " + filename[:-3])
-        client.load_extension(f'cogs.{filename[:-3]}')
+    for filename in os.listdir('./cogs'):
+        if filename.endswith('.py'):
+            # cog loading became async in discordpy v2.0
+            print("loading...: " + filename[:-3])
+            await client.load_extension(f'cogs.{filename[:-3]}')
+            print("cog loaded: " + filename[:-3])
+
+
+asyncio.run(main_client())
 
 client.run(os.environ['basedBotStr'])

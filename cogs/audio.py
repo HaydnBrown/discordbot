@@ -227,5 +227,5 @@ class Audio(commands.Cog):
             voice.play(discord.FFmpegPCMAudio('audio/misc/epicfail.mp3'))
 
 
-def setup(client):
-    client.add_cog(Audio(client))
+async def setup(client):
+    await client.add_cog(Audio(client))

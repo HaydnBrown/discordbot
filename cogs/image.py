@@ -312,5 +312,5 @@ class BasedImaging(commands.Cog):
                                        "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠐⠚⠋⠳⣀⣀⣀⣀⣀⣠⠞⠃⠀⠀⠉⠉⠉⠙⠓\n")
 
 
-def setup(client):
-    client.add_cog(BasedImaging(client))
+async def setup(client):
+    await client.add_cog(BasedImaging(client))

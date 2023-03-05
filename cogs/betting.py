@@ -409,5 +409,5 @@ class Betting(commands.Cog):
         print("DONE")
 
 
-def setup(client):
-    client.add_cog(Betting(client))
+async def setup(client):
+    await client.add_cog(Betting(client))

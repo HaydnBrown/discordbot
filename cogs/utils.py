@@ -48,5 +48,5 @@ class Utils(commands.Cog):
     async def myid(self, ctx):
         await ctx.send(ctx.author.id)
 
-def setup(client):
-    client.add_cog(Utils(client))
+async def setup(client):
+    await client.add_cog(Utils(client))
