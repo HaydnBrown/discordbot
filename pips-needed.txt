@@ -1,0 +1,7 @@
+sudo apt install python3-pip
+discord
+youtube_dl
+bs4
+selenium
+motor
+tabulate

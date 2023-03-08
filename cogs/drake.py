@@ -256,24 +256,13 @@ class Drake(commands.Cog):
         for user in docs['members']:
             userDrakes = len(user['common']) + len(user['uncommon']) + len(user['unique']) + len(user['rare']) + \
                          len(user['legendary'])
-            print(user['name'], ", drakes: ", userDrakes)
+            # print(user['name'], ", drakes: ", userDrakes)
             percentage = (userDrakes / totalDrakes) * 100
             if not user['name'] in usersPercantage:
                 usersPercantage[user['name']] = percentage
-        # for document in docs:
-        #     # print(document['members'])
-        #     # members = document['members']
-        #     for user in document['members']:
-        #         userDrakes = len(user['common']) + len(user['uncommon']) + len(user['unique']) + len(user['rare']) + \
-        #                      len(user['legendary'])
-        #         print(user['name'], ", drakes: ", userDrakes)
-        #         percentage = (userDrakes / totalDrakes) * 100
-        #         if not user['name'] in usersPercantage:
-        #             usersPercantage[user['name']] = percentage
-        #         # usersGuilds[user['name']] = document['id']
-        print(usersPercantage)
+        # print(usersPercantage)
         finalUsers = {k: v for k, v in sorted(usersPercantage.items(), key=lambda item: item[1], reverse=True)}
-        print(finalUsers)
+        # print(finalUsers)
         # print(max(usersPercantage, key=usersPercantage.get))
         finalList = []
         for x in range(0, 5):
