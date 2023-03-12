@@ -3,6 +3,7 @@ from discord.ext import commands
 import os
 import random
 from PIL import Image, ImageEnhance
+import logging
 
 
 class BasedImaging(commands.Cog):
@@ -220,7 +221,7 @@ class BasedImaging(commands.Cog):
 
     @commands.command()
     async def tucker(self, ctx):
-        print("tucker time")
+        logging.info("tucker time")
         username = ctx.message.author.name
         filename = "tempfiles/" + username + "tucker"
         await ctx.message.attachments[0].save(filename)
@@ -232,9 +233,9 @@ class BasedImaging(commands.Cog):
         new_size_x = int(pic_size_x * 0.40)
         new_size_y = int(pic_size_y * 0.35)
         new_size = (new_size_x, new_size_y)
-        print(f'new size: {new_size}')
+        logging.info(f'new size: {new_size}')
         backup2 = backup2.resize(new_size)
-        print(f'coordinates: x:{pic_size_x - new_size_x} y:{pic_size_y - new_size_y}')
+        logging.info(f'coordinates: x:{pic_size_x - new_size_x} y:{pic_size_y - new_size_y}')
         backup1.paste(backup2, ((pic_size_x - new_size_x), (pic_size_y - new_size_y)))
         tucker_filename = filename + "finaltucker.png"
         backup1.save(tucker_filename)
@@ -249,14 +250,14 @@ class BasedImaging(commands.Cog):
         with open("photos/utility/angel-jerma.png", 'rb') as f:
             picture = discord.File(f)
             await ctx.channel.send(file=picture)
-        print("sent angel-jerma")
+        logging.info("sent angel-jerma")
 
     @commands.command()
     async def truegif(self, ctx):
         with open("photos/utility/thatstrue.gif", 'rb') as f:
             picture = discord.File(f)
             await ctx.channel.send(file=picture)
-        print("sent thats-true gif")
+        logging.info("sent thats-true gif")
 
     @commands.command()
     async def whenthe(self, ctx):

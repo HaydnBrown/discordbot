@@ -1,0 +1,30 @@
+INFO:root:clearing temp files
+INFO:root:loading...: av
+INFO:root:cog loaded: av
+INFO:root:loading...: image
+INFO:root:cog loaded: image
+INFO:root:loading...: webscrape
+INFO:root:cog loaded: webscrape
+INFO:root:loading...: peterClips
+INFO:root:cog loaded: peterClips
+INFO:root:loading...: utils
+INFO:root:cog loaded: utils
+INFO:root:loading...: betting
+INFO:root:cog loaded: betting
+INFO:root:loading...: drake
+INFO:root:cog loaded: drake
+INFO:root:loading...: audio
+INFO:root:cog loaded: audio
+DEBUG:asyncio:Using selector: EpollSelector
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID None has connected to Gateway (Session ID: d7d4d4722fafe832f106b89ddd2e6ba3).
+INFO:root:Bot is ready...
+
+INFO:root:[['Frenchmyfry', 97.8021978021978], ['applewood', 97.8021978021978], ['Supercow22', 93.95604395604396], ['LeeK', 93.95604395604396], ['Morzo', 90.65934065934066]]
+INFO:root:The 5 largest collections across servers: 
+1. Frenchmyfry with 97.80 percent completion 
+2. applewood with 97.80 percent completion 
+3. Supercow22 with 93.96 percent completion 
+4. LeeK with 93.96 percent completion 
+5. Morzo with 90.66 percent completion 
+

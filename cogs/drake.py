@@ -8,6 +8,7 @@ import time
 import math
 from tabulate import tabulate
 from urllib.error import HTTPError
+import logging
 
 drake_cooldowns = {}
 
@@ -27,7 +28,7 @@ class Drake(commands.Cog):
             if member.bot:
                 human_members.remove(member)
         for m in human_members:
-            print(m.name)
+            logging.info(m.name)
         await self.mongo_collection.insert_one({'_id': 'users', 'members': []})
         for member in human_members:
             await self.mongo_collection.update_one({'_id': 'users'},
@@ -41,18 +42,18 @@ class Drake(commands.Cog):
 
     @commands.command()
     async def removeInactive(self, ctx):
-        print("removing inactive users \n")
+        logging.info("removing inactive users \n")
         user_server = await self.mongo_collection.find_one({'_id': "users"})
         members_list = user_server['members']
         new_members_list = [m for m in members_list if not (len(m["common"]) == 0)]
         for i in new_members_list:
-            print(i['name'])
+            logging.info(i['name'])
         await self.mongo_collection.update_one({'_id': 'users'}, {"$set": {"members": new_members_list}})
-        print("done removing inactive users")
+        logging.info("done removing inactive users")
 
     @commands.command()
     async def updateServerMembers(self, ctx):
-        print("updating users list with new members:")
+        logging.info("updating users list with new members:")
         guild_members = ctx.guild.members
         human_members = guild_members.copy()
         for member in guild_members:
@@ -73,7 +74,7 @@ class Drake(commands.Cog):
                                                                        'unique': [],
                                                                        'rare': [],
                                                                        'legendary': []}}})
-        print("Updated the member list with all new members")
+        logging.info("Updated the member list with all new members")
 
     def progressstring(self, percentage):
         output_str = ""
@@ -153,13 +154,13 @@ class Drake(commands.Cog):
                 full_path = "photos/legendaryDrake/" + file_name
                 rarity = "legendary"
                 msg_text = userid + " you pulled a legendary drake!"
-            print("your drake: ", full_path)
+            logging.info("your drake: ", full_path)
 
             guild_document = await self.mongo_collection.find_one({'_id': 'users'})
             # check to make sure the server is in the database
             if guild_document is None:
                 # the server isn't yet tracked in the database, initialize it with addServerToDB
-                print("the server isn't in the db, adding it now")
+                logging.info("the server isn't in the db, adding it now")
                 await self.addServerToDB(ctx)
                 await self.mongo_collection.update_one({"members.name": ctx.message.author.name},
                                                        {"$addToSet": {"members.$.{}".format(rarity): file_name}})
@@ -256,25 +257,25 @@ class Drake(commands.Cog):
         for user in docs['members']:
             userDrakes = len(user['common']) + len(user['uncommon']) + len(user['unique']) + len(user['rare']) + \
                          len(user['legendary'])
-            # print(user['name'], ", drakes: ", userDrakes)
+            # logging.info(user['name'], ", drakes: ", userDrakes)
             percentage = (userDrakes / totalDrakes) * 100
             if not user['name'] in usersPercantage:
                 usersPercantage[user['name']] = percentage
-        # print(usersPercantage)
+        # logging.info(usersPercantage)
         finalUsers = {k: v for k, v in sorted(usersPercantage.items(), key=lambda item: item[1], reverse=True)}
-        # print(finalUsers)
-        # print(max(usersPercantage, key=usersPercantage.get))
+        # logging.info(finalUsers)
+        # logging.info(max(usersPercantage, key=usersPercantage.get))
         finalList = []
         for x in range(0, 5):
             tempMax = max(usersPercantage, key=usersPercantage.get)
             finalList.append([tempMax, usersPercantage[tempMax]])
             del (usersPercantage[tempMax])
-        print(finalList)
+        logging.info(finalList)
         str = ""
         str = str + "The 5 largest collections across servers: \n"
         for i in range(0, 5):
             str = str + "{}. {} with {:.2f} percent completion \n".format(i+1, finalList[i][0], finalList[i][1])
-        print(str)
+        logging.info(str)
         await ctx.channel.send(content=str)
 
     @commands.command()
@@ -284,7 +285,7 @@ class Drake(commands.Cog):
                       len(os.listdir("photos/legendaryDrake"))
         usersPercantage = {}  # dict containing every user and their total % of collection completed
         docs = await self.mongo_collection.find_one({'_id': 'users'})
-        # print("success - myRank")
+        # logging.info("success - myRank")
         for user in docs['members']:
             userDrakes = len(user['common']) + len(user['uncommon']) + len(user['unique']) + len(user['rare']) + \
                          len(user['legendary'])

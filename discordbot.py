@@ -6,6 +6,8 @@ import os
 import globalvars
 import time
 import youtube_dl
+import sys
+import logging
 
 intents = discord.Intents.all()
 
@@ -14,7 +16,7 @@ client = commands.Bot(command_prefix='$', intents=intents)
 
 @client.event
 async def on_ready():
-    print("Bot is ready...\n")
+    logging.info("Bot is ready...\n")
 
 
 @client.event
@@ -87,16 +89,18 @@ async def reload(ctx, extension):
 
 
 async def main_client():
-    print("clearing temp files")
+    logging.basicConfig(filename="output.txt", filemode="w", encoding="utf-8", level=logging.DEBUG)
+
+    logging.info("clearing temp files")
     for file in os.listdir('./tempfiles'):
         os.remove(f'tempfiles/{file}')
 
     for filename in os.listdir('./cogs'):
         if filename.endswith('.py'):
             # cog loading became async in discordpy v2.0
-            print("loading...: " + filename[:-3])
+            logging.info("loading...: " + filename[:-3])
             await client.load_extension(f'cogs.{filename[:-3]}')
-            print("cog loaded: " + filename[:-3])
+            logging.info("cog loaded: " + filename[:-3])
 
 
 asyncio.run(main_client())

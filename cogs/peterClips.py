@@ -5,6 +5,7 @@ from discord.ext import commands
 import os
 import random
 import youtube_dl
+import logging
 
 
 class PeterClips(commands.Cog):
@@ -15,7 +16,7 @@ class PeterClips(commands.Cog):
     @commands.command()
     async def peterClip(self, ctx, clip: str):
         clipName = "audio/PeterGriffin/" + clip + ".mp3"
-        print("clip to play: " + clipName)
+        logging.info("clip to play: " + clipName)
         voiceChannel = ctx.message.author.voice.channel
         if not voiceChannel:
             await ctx.send("Please connect to a voice channel first")
@@ -82,7 +83,7 @@ class PeterClips(commands.Cog):
         output = "The available clip names are: "
         for file in os.listdir('audio/PeterGriffin'):
             output = output + file[:-4] + ", "
-        print(output)
+        logging.info(output)
         await ctx.send(output)
 
 

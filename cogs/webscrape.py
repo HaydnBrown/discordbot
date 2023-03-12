@@ -13,6 +13,8 @@ import time
 import csv
 import globalvars
 import urllib.request
+import logging
+
 
 
 class WebScrape(commands.Cog):
@@ -30,7 +32,7 @@ class WebScrape(commands.Cog):
             search_item = search_item + i + " "
         tech_file = open(self.tech_filename, "w")
         driver.get("https://www.amazon.ca/")
-        print(driver.title)
+        logging.info(driver.title)
         search_bar = driver.find_element_by_id("twotabsearchtextbox")
         search_bar.send_keys(search_item)
         search_bar.send_keys(Keys.RETURN)
@@ -41,7 +43,7 @@ class WebScrape(commands.Cog):
                                                           "sg-row']"))
             )
             result_items = results.find_elements_by_xpath(".//div[@class='s-expand-height s-include-content-margin s-border-bottom s-latency-cf-section']")
-            print("number of items on page 1: " + str(len(result_items)))
+            logging.info("number of items on page 1: " + str(len(result_items)))
             file_headers = "website, product_name, price, reviews\n"
             tech_file.write(file_headers)
             image = "none"
@@ -77,11 +79,11 @@ class WebScrape(commands.Cog):
                     reviews = "could not find number of reviews"
                     tech_file.write(site + "," + name.text.replace(",",
                                                                    "|") + "," + price_final + "," + "Reviews could not be retrieved " + link + "\n")
-                print(f"The {index}th item is named: {name.text}")
+                logging.info(f"The {index}th item is named: {name.text}")
                 results_list.insert(index, [name.text.replace(",", "|"), price_final, reviews, link, str(image)])
 
             time.sleep(2)
-            print("-----closing the file-----")
+            logging.info("-----closing the file-----")
             tech_file.close()
             embed = discord.Embed(title=ctx.author.name, description="Amazon search results", colour=0x9D34D1)
             if image != "none":
@@ -97,11 +99,11 @@ class WebScrape(commands.Cog):
             await msg.add_reaction("➡️")
             globalvars.user_results[ctx.author.id] = results_list
             globalvars.message_info[ctx.author.id] = [msg.id, time.time(), 0]
-            print(globalvars.message_info[ctx.author.id])
+            logging.info(globalvars.message_info[ctx.author.id])
             # Implement the loop to wait for the timer to expire here
             # await ctx.message.channel.send(file=discord.File('tech_products.csv', 'results.csv'))
         except:
-            print("The results of the search were not found.")
+            logging.info("The results of the search were not found.")
             await ctx.message.channel.send("Results could not be found")
 
 

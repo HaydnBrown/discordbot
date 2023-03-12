@@ -4,6 +4,7 @@ from discord.ext import commands
 from discord.utils import get
 import os
 import shutil
+import logging
 import asyncio
 import random
 import json
@@ -49,14 +50,14 @@ class AV(commands.Cog):
                 try:
                     first_file = os.listdir(DIR)[0]
                 except:
-                    print("No more queued songs\n")
+                    logging.info("No more queued songs\n")
                     self.queues.clear()
                     return
                 main_location = os.path.dirname(os.path.realpath(__file__))
                 song_path = os.path.abspath(os.path.realpath("Queue") + "\\" + first_file)
                 if length != 0:
-                    print("Song done, playing next in Queue\n")
-                    print(f"Songs still in Queue: {still_q}")
+                    logging.info("Song done, playing next in Queue\n")
+                    logging.info(f"Songs still in Queue: {still_q}")
                     song_there = os.path.isfile("song.mp3")
                     if song_there:
                         os.remove("song.mp3")
@@ -73,16 +74,16 @@ class AV(commands.Cog):
                     return
             else:
                 self.queues.clear()
-                print("No songs were queued before the ending of the last song\n")
+                logging.info("No songs were queued before the ending of the last song\n")
 
         song_there = os.path.isfile("song.mp3")
         try:
             if song_there:
                 os.remove("song.mp3")
                 self.queues.clear()
-                print("Removed old song file")
+                logging.info("Removed old song file")
         except PermissionError:
-            print("Trying to delete song file, but its being played")
+            logging.info("Trying to delete song file, but its being played")
             await ctx.send("ERROR: Music playing")
             return
 
@@ -90,10 +91,10 @@ class AV(commands.Cog):
         try:
             Queue_folder = "./Queue"
             if Queue_infile is True:
-                print("Removed old Queue folder")
+                logging.info("Removed old Queue folder")
                 shutil.rmtree(Queue_folder)
         except:
-            print("No old queue folder")
+            logging.info("No old queue folder")
 
         await ctx.send("Getting everything ready now")
 
@@ -110,13 +111,13 @@ class AV(commands.Cog):
         }
 
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            print("Downloading audio now\n")
+            logging.info("Downloading audio now\n")
             ydl.download([url])
 
         for file in os.listdir("./"):
             if file.endswith(".mp3"):
                 name = file
-                print(f"Renamed file: {file}\n")
+                logging.info(f"Renamed file: {file}\n")
                 os.rename(file, "song.mp3")
 
         voice.play(discord.FFmpegPCMAudio("song.mp3"), after=lambda e: check_queue())
@@ -125,7 +126,7 @@ class AV(commands.Cog):
 
         name = name.rsplit("-", 2)
         await ctx.send(f"Playing: {name[0]}")
-        print("Playing\n")
+        logging.info("Playing\n")
 
     @commands.command(pass_context=True)
     async def pause(self, ctx):
@@ -133,11 +134,11 @@ class AV(commands.Cog):
         voice = get(self.client.voice_clients, guild=ctx.guild)
 
         if voice and voice.is_playing():
-            print("Music paused")
+            logging.info("Music paused")
             voice.pause()
             await ctx.send("Music paused")
         else:
-            print("Music not playing failed pause")
+            logging.info("Music not playing failed pause")
             await ctx.send("Music not playing failed pause")
 
     @commands.command(pass_context=True)
@@ -146,11 +147,11 @@ class AV(commands.Cog):
         voice = get(self.client.voice_clients, guild=ctx.guild)
 
         if voice and voice.is_paused():
-            print("Resumed music")
+            logging.info("Resumed music")
             voice.resume()
             await ctx.send("Resumed music")
         else:
-            print("Music is not paused")
+            logging.info("Music is not paused")
             await ctx.send("Music is not paused")
 
     @commands.command(pass_context=True)
@@ -159,11 +160,11 @@ class AV(commands.Cog):
 
         self.queues.clear()
         if voice and voice.is_playing():
-            print("Music skipped")
+            logging.info("Music skipped")
             voice.stop()
             await ctx.send("Music skipped")
         else:
-            print("No Music playing failed to skip")
+            logging.info("No Music playing failed to skip")
             await ctx.send("No music playing failed to skip")
 
     @commands.command(pass_context=True)
@@ -195,11 +196,11 @@ class AV(commands.Cog):
         }
 
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            print("Downloading audio now")
+            logging.info("Downloading audio now")
             ydl.download([url])
         await ctx.send("adding song" + str(q_num) + " to the queue")
 
-        print("Song added to Queue\n")
+        logging.info("Song added to Queue\n")
 
 
 async def setup(client):
